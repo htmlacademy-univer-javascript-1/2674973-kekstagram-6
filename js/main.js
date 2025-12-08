@@ -1,8 +1,6 @@
-import { generatePhotos } from './photo.js';
-import { initBigPicture } from './big-picture.js';
+import './form.js';
+import './big-picture.js';
+import { renderPictures } from './pictures.js';
 import { photos } from './data.js';
-const photos = generatePhotos();
+
 renderPictures(photos);
-const thumbnails = document.querySelectorAll('.picture');
-initBigPicture(thumbnails, photos)
-console.log(photos);

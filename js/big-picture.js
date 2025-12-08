@@ -10,63 +10,94 @@ const commentCountBlock = bigPicture.querySelector('.social__comment-count');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
 const closeButton = bigPicture.querySelector('#picture-cancel');
 
+const COMMENTS_STEP = 5;
 
-// --- ОТКРЫТИЕ ОКНА ---
+let currentComments = [];
+let shownComments = 0;
+
+
+// ----------------------
+//  РЕНДЕР КОММЕНТАРИЕВ
+// ----------------------
+function renderComments() {
+  const fragment = document.createDocumentFragment();
+
+  const nextPart = currentComments.slice(shownComments, shownComments + COMMENTS_STEP);
+
+  nextPart.forEach(({ avatar, name, message }) => {
+    const comment = commentTemplate.cloneNode(true);
+    comment.querySelector('.social__picture').src = avatar;
+    comment.querySelector('.social__picture').alt = name;
+    comment.querySelector('.social__text').textContent = message;
+    fragment.appendChild(comment);
+  });
+
+  commentsList.appendChild(fragment);
+
+  shownComments += nextPart.length;
+
+  // обновляем счётчик
+  commentCountBlock.textContent = `${shownComments} из ${currentComments.length} комментариев`;
+
+  // если комментарии закончились — скрываем кнопку
+  if (shownComments >= currentComments.length) {
+    commentsLoader.classList.add('hidden');
+  }
+}
+
+
+// ----------------------
+//  ОТКРЫТИЕ ОКНА
+// ----------------------
 function openBigPicture(photo) {
-  // показать окно
   bigPicture.classList.remove('hidden');
   document.body.classList.add('modal-open');
 
-  // спрятать блоки загрузки комментов
-  commentCountBlock.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
-
-  // подставить данные
   bigImg.src = photo.url;
   likesCount.textContent = photo.likes;
   commentsCount.textContent = photo.comments.length;
   caption.textContent = photo.description;
 
-  // очистить старые комментарии
+  // показываем панели
+  commentCountBlock.classList.remove('hidden');
+  commentsLoader.classList.remove('hidden');
+
+  // чистим старые комментарии
   commentsList.innerHTML = '';
 
-  // отрисовать новые комментарии
-  photo.comments.forEach(({ avatar, name, message }) => {
-    const comment = commentTemplate.cloneNode(true);
-    const img = comment.querySelector('.social__picture');
-    const text = comment.querySelector('.social__text');
+  // загружаем новые комментарии
+  currentComments = photo.comments;
+  shownComments = 0;
 
-    img.src = avatar;
-    img.alt = name;
-    text.textContent = message;
+  renderComments();
 
-    commentsList.appendChild(comment);
-  });
-
-  // обработчик esc
-  document.addEventListener('keydown', onEscKeyDown);
+  document.addEventListener('keydown', onEscPress);
 }
 
 
-// --- ЗАКРЫТИЕ ОКНА ---
+// ----------------------
+//  ЗАКРЫТИЕ ОКНА
+// ----------------------
 function closeBigPicture() {
   bigPicture.classList.add('hidden');
   document.body.classList.remove('modal-open');
 
-  document.removeEventListener('keydown', onEscKeyDown);
+  document.removeEventListener('keydown', onEscPress);
 }
 
-function onEscKeyDown(evt) {
+function onEscPress(evt) {
   if (evt.key === 'Escape') {
     closeBigPicture();
   }
 }
 
-// обработчик закрытия по крестику
 closeButton.addEventListener('click', closeBigPicture);
+commentsLoader.addEventListener('click', renderComments);
 
 
-// --- ПРИВЯЗКА К МИНИАТЮРАМ ---
+// ----------------------
+// СВЯЗЬ МИНИАТЮР С ОКНОМ
+// ----------------------
 function initBigPicture(thumbnails, photosData) {
   thumbnails.forEach((thumbnail, i) => {
     thumbnail.addEventListener('click', () => {

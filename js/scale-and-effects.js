@@ -114,4 +114,30 @@ effectRadios.forEach((radio) => {
     const effect = EFFECTS[effectName];
 
     // сбрасываем старый эффект
-    imgPreview.style.filter = 'no
+    imgPreview.style.filter = 'none';
+
+    // обновляем параметры слайдера
+    slider.noUiSlider.updateOptions({
+      range: effect.range,
+      start: effect.start,
+      step: effect.step
+    });
+
+    // записываем новое значение
+    effectValueInput.value = effect.start;
+
+    // если эффект — none → прячем слайдер
+    if (effectName === 'none') {
+      slider.parentElement.style.display = 'none';
+    } else {
+      slider.parentElement.style.display = 'block';
+    }
+
+    // применяем начальный эффект
+    imgPreview.style.filter = effect.filter(effect.start);
+  });
+});
+
+// стартовое состояние: без эффекта
+slider.parentElement.style.display = 'none';
+applyScale(100);

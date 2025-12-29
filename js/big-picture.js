@@ -1,7 +1,6 @@
 const bigPicture = document.querySelector('.big-picture');
 const bigImg = bigPicture.querySelector('.big-picture__img img');
 const likesCount = bigPicture.querySelector('.likes-count');
-const commentsCount = bigPicture.querySelector('.comments-count');
 const commentsList = bigPicture.querySelector('.social__comments');
 const commentTemplate = bigPicture.querySelector('.social__comment');
 const caption = bigPicture.querySelector('.social__caption');
@@ -23,7 +22,7 @@ const renderComments = () => {
   });
   commentsList.appendChild(fragment);
   shownComments += nextPart.length;
-  commentCountBlock.textContent = `${shownComments} из ${currentComments.length} комментариев`;
+  commentCountBlock.innerHTML = `<span class="social__comment-shown-count">${shownComments}</span> из <span class="social__comment-total-count">${currentComments.length}</span> комментариев`;
   if (shownComments >= currentComments.length) {
     commentsLoader.classList.add('hidden');
   }
@@ -49,7 +48,6 @@ const openBigPicture = (photo) => {
   document.body.classList.add('modal-open');
   bigImg.src = photo.url;
   likesCount.textContent = photo.likes;
-  commentsCount.textContent = photo.comments.length;
   caption.textContent = photo.description;
   commentCountBlock.classList.remove('hidden');
   commentsLoader.classList.remove('hidden');

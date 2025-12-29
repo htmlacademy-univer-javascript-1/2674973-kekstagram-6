@@ -8,10 +8,10 @@ const slider = document.querySelector('.effect-level__slider');
 const SCALE_STEP = 25;
 const SCALE_MIN = 25;
 const SCALE_MAX = 100;
-function applyScale(value) {
+const applyScale = (value) => {
   imgPreview.style.transform = `scale(${value / 100})`;
   scaleInput.value = `${value}%`;
-}
+};
 smallerButton.addEventListener('click', () => {
   let current = parseInt(scaleInput.value, 10);
   if (current > SCALE_MIN) {

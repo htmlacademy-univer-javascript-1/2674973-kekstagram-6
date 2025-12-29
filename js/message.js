@@ -1,36 +1,36 @@
 const successTemplate = document.querySelector('#success').content.querySelector('.success');
 const errorTemplate = document.querySelector('#error').content.querySelector('.error');
 
-function showMessage(template, closeButtonClass) {
+const showMessage = (template, closeButtonClass) => {
   const element = template.cloneNode(true);
   element.style.zIndex = '100';
   document.body.append(element);
 
   const closeButton = element.querySelector(closeButtonClass);
 
-  const onEscKeydown = (evt) => {
+  const close = () => {
+    element.remove();
+    document.removeEventListener('keydown', onEscKeydown);
+    document.removeEventListener('click', onOutsideClick);
+  };
+
+  function onEscKeydown(evt) {
     if (evt.key === 'Escape') {
       evt.preventDefault();
       close();
     }
-  };
+  }
 
-  const onOutsideClick = (evt) => {
+  function onOutsideClick(evt) {
     if (evt.target === element) {
       close();
     }
-  };
-
-  function close() {
-    element.remove();
-    document.removeEventListener('keydown', onEscKeydown);
-    document.removeEventListener('click', onOutsideClick);
   }
 
   closeButton.addEventListener('click', close);
   document.addEventListener('keydown', onEscKeydown);
   document.addEventListener('click', onOutsideClick);
-}
+};
 
 export const showSuccessMessage = () => showMessage(successTemplate, '.success__button');
 export const showErrorMessage = () => showMessage(errorTemplate, '.error__button');

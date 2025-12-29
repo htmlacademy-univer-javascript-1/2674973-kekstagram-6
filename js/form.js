@@ -17,7 +17,7 @@ const pristine = new Pristine(form, {
   errorTextClass: 'img-upload__error'
 });
 
-function validateHashtags(value) {
+const validateHashtags = (value) => {
   if (value.trim() === '') {return true;}
   const rules = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
   const tags = value.trim().toLowerCase().split(/\s+/);
@@ -25,12 +25,10 @@ function validateHashtags(value) {
   const unique = new Set(tags);
   if (unique.size !== tags.length) {return false;}
   return tags.every((tag) => rules.test(tag));
-}
+};
 pristine.addValidator(hashtagInput, validateHashtags, 'Неверный формат хэштега');
 
-function validateComment(value) {
-  return value.length <= 140;
-}
+const validateComment = (value) => value.length <= 140;
 
 pristine.addValidator(commentInput, validateComment, 'Комментарий не может быть длиннее 140 символов');
 
@@ -41,7 +39,7 @@ uploadInput.addEventListener('change', () => {
 
 import { resetScale, resetEffects } from './scale-and-effects.js';
 
-function closeForm() {
+const closeForm = () => {
   uploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
 
@@ -50,7 +48,7 @@ function closeForm() {
   resetScale();
   resetEffects();
   uploadInput.value = '';
-}
+};
 
 closeButton.addEventListener('click', closeForm);
 

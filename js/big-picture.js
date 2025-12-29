@@ -11,7 +11,7 @@ const closeButton = bigPicture.querySelector('#picture-cancel');
 const COMMENTS_STEP = 5;
 let currentComments = [];
 let shownComments = 0;
-function renderComments() {
+const renderComments = () => {
   const fragment = document.createDocumentFragment();
   const nextPart = currentComments.slice(shownComments, shownComments + COMMENTS_STEP);
   nextPart.forEach(({ avatar, name, message }) => {
@@ -27,8 +27,24 @@ function renderComments() {
   if (shownComments >= currentComments.length) {
     commentsLoader.classList.add('hidden');
   }
+};
+
+function onEscPress(evt) {
+  if (evt.key === 'Escape') {
+    closeBigPicture();
+  }
 }
-function openBigPicture(photo) {
+
+function closeBigPicture() {
+  bigPicture.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+  document.removeEventListener('keydown', onEscPress);
+}
+
+closeButton.addEventListener('click', closeBigPicture);
+commentsLoader.addEventListener('click', renderComments);
+
+const openBigPicture = (photo) => {
   bigPicture.classList.remove('hidden');
   document.body.classList.add('modal-open');
   bigImg.src = photo.url;
@@ -42,24 +58,20 @@ function openBigPicture(photo) {
   shownComments = 0;
   renderComments();
   document.addEventListener('keydown', onEscPress);
-}
-function closeBigPicture() {
-  bigPicture.classList.add('hidden');
-  document.body.classList.remove('modal-open');
-  document.removeEventListener('keydown', onEscPress);
-}
-function onEscPress(evt) {
-  if (evt.key === 'Escape') {
-    closeBigPicture();
-  }
-}
-closeButton.addEventListener('click', closeBigPicture);
-commentsLoader.addEventListener('click', renderComments);
-function initBigPicture(thumbnails, photosData) {
-  thumbnails.forEach((thumbnail, i) => {
-    thumbnail.addEventListener('click', () => {
-      openBigPicture(photosData[i]);
-    });
+};
+
+const picturesContainer = document.querySelector('.pictures');
+
+const initBigPicture = (photosData) => {
+  picturesContainer.addEventListener('click', (evt) => {
+    const thumbnail = evt.target.closest('.picture');
+    if (!thumbnail) {
+      return;
+    }
+    evt.preventDefault();
+    const pictureId = Number(thumbnail.dataset.id);
+    const pictureData = photosData.find((photo) => photo.id === pictureId);
+    openBigPicture(pictureData);
   });
-}
+};
 export { initBigPicture };

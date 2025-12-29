@@ -113,5 +113,13 @@ effectRadios.forEach((radio) => {
     imgPreview.style.filter = effect.filter(effect.start);
   });
 });
+export const resetScale = () => applyScale(100);
+
+export const resetEffects = () => {
+  slider.parentElement.style.display = 'none';
+  imgPreview.style.filter = 'none';
+  document.querySelector('#effect-none').checked = true;
+};
+
 slider.parentElement.style.display = 'none';
 applyScale(100);

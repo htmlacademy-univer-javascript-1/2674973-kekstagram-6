@@ -1,27 +1,17 @@
-// ---------- ЭЛЕМЕНТЫ ----------
 const imgPreview = document.querySelector('.img-upload__preview img');
-
 const smallerButton = document.querySelector('.scale__control--smaller');
 const biggerButton = document.querySelector('.scale__control--bigger');
 const scaleInput = document.querySelector('.scale__control--value');
-
 const effectRadios = document.querySelectorAll('.effects__radio');
 const effectValueInput = document.querySelector('.effect-level__value');
 const slider = document.querySelector('.effect-level__slider');
-
-
-// ---------- МАСШТАБ ----------
 const SCALE_STEP = 25;
 const SCALE_MIN = 25;
 const SCALE_MAX = 100;
-
-// Обновление масштаба
 function applyScale(value) {
   imgPreview.style.transform = `scale(${value / 100})`;
   scaleInput.value = `${value}%`;
 }
-
-// Обработчик "уменьшить"
 smallerButton.addEventListener('click', () => {
   let current = parseInt(scaleInput.value, 10);
   if (current > SCALE_MIN) {
@@ -29,8 +19,6 @@ smallerButton.addEventListener('click', () => {
     applyScale(current);
   }
 });
-
-// Обработчик "увеличить"
 biggerButton.addEventListener('click', () => {
   let current = parseInt(scaleInput.value, 10);
   if (current < SCALE_MAX) {
@@ -38,9 +26,6 @@ biggerButton.addEventListener('click', () => {
     applyScale(current);
   }
 });
-
-
-// ---------- ЭФФЕКТЫ ----------
 const EFFECTS = {
   none: {
     range: { min: 0, max: 100 },
@@ -85,59 +70,56 @@ const EFFECTS = {
     filter: (v) => `brightness(${v})`
   }
 };
-
-
-// ---------- ИНИЦИАЛИЗАЦИЯ СЛАЙДЕРА ----------
 noUiSlider.create(slider, {
   range: { min: 0, max: 1 },
   start: 1,
   step: 0.1,
-  connect: 'lower'
+  connect: 'lower',
+  format: {
+    to: function (value) {
+      if (Number.isInteger(value)) {
+        return value.toFixed(0);
+      }
+      return value.toFixed(1);
+    },
+    from: function (value) {
+      return parseFloat(value);
+    },
+  },
 });
-
-// Применение значения слайдера
 slider.noUiSlider.on('update', (values) => {
   const value = values[0];
   effectValueInput.value = value;
-
   const selectedEffect = document.querySelector('.effects__radio:checked').value;
   const effect = EFFECTS[selectedEffect];
-
   imgPreview.style.filter = effect.filter(value);
 });
-
-
-// ---------- ПЕРЕКЛЮЧЕНИЕ ФИЛЬТРОВ ----------
 effectRadios.forEach((radio) => {
   radio.addEventListener('change', () => {
     const effectName = radio.value;
     const effect = EFFECTS[effectName];
-
-    // сбрасываем старый эффект
     imgPreview.style.filter = 'none';
-
-    // обновляем параметры слайдера
     slider.noUiSlider.updateOptions({
       range: effect.range,
       start: effect.start,
       step: effect.step
     });
-
-    // записываем новое значение
     effectValueInput.value = effect.start;
-
-    // если эффект — none → прячем слайдер
     if (effectName === 'none') {
       slider.parentElement.style.display = 'none';
     } else {
       slider.parentElement.style.display = 'block';
     }
-
-    // применяем начальный эффект
     imgPreview.style.filter = effect.filter(effect.start);
   });
 });
+export const resetScale = () => applyScale(100);
 
-// стартовое состояние: без эффекта
+export const resetEffects = () => {
+  slider.parentElement.style.display = 'none';
+  imgPreview.style.filter = 'none';
+  document.querySelector('#effect-none').checked = true;
+};
+
 slider.parentElement.style.display = 'none';
 applyScale(100);

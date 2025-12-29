@@ -1,7 +1,18 @@
-import './form.js';
-import './big-picture.js';
+import { initBigPicture } from './big-picture.js';
 import { renderPictures } from './pictures.js';
-import { photos } from './data.js';
+import { getData } from './api.js';
+import { showDataError } from './message.js';
+import { setFormSubmit } from './form.js';
 import './scale-and-effects.js';
 
-renderPictures(photos);
+getData()
+  .then((photos) => {
+    renderPictures(photos);
+    const thumbnails = document.querySelectorAll('.picture');
+    initBigPicture(thumbnails, photos);
+  })
+  .catch((err) => {
+    showDataError(err.message);
+  });
+
+setFormSubmit();

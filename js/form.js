@@ -1,3 +1,6 @@
+import { sendData } from './api.js';
+import { showSuccessMessage, showErrorMessage } from './message.js';
+
 const uploadInput = document.querySelector('.img-upload__input');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
 const body = document.body;
@@ -8,33 +11,22 @@ const hashtagInput = uploadOverlay.querySelector('.text__hashtags');
 const commentInput = uploadOverlay.querySelector('.text__description');
 const form = document.querySelector('.img-upload__form');
 
-// ----------- ПРИСТИН -----------
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
   errorTextParent: 'img-upload__field-wrapper',
   errorTextClass: 'img-upload__error'
 });
 
-// ----------- ВАЛИДАЦИЯ ХЭШТЕГОВ -----------
-
 function validateHashtags(value) {
-  if (value.trim() === '') return true;
-
+  if (value.trim() === '') {return true;}
   const rules = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
-
   const tags = value.trim().toLowerCase().split(/\s+/);
-
-  if (tags.length > 5) return false;
-
+  if (tags.length > 5) {return false;}
   const unique = new Set(tags);
-  if (unique.size !== tags.length) return false;
-
-  return tags.every(tag => rules.test(tag));
+  if (unique.size !== tags.length) {return false;}
+  return tags.every((tag) => rules.test(tag));
 }
-
 pristine.addValidator(hashtagInput, validateHashtags, 'Неверный формат хэштега');
-
-// ----------- ВАЛИДАЦИЯ КОММЕНТАРИЯ -----------
 
 function validateComment(value) {
   return value.length <= 140;
@@ -42,36 +34,64 @@ function validateComment(value) {
 
 pristine.addValidator(commentInput, validateComment, 'Комментарий не может быть длиннее 140 символов');
 
-// ----------- ОТКРЫТЬ ФОРМУ -----------
-
 uploadInput.addEventListener('change', () => {
   uploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
 });
 
-// ----------- ЗАКРЫТЬ ФОРМУ -----------
+import { resetScale, resetEffects } from './scale-and-effects.js';
 
 function closeForm() {
   uploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
 
-  form.reset();            // очистить текст полей
-  uploadInput.value = '';  // сбросить файл!
+  form.reset();
+  pristine.reset();
+  resetScale();
+  resetEffects();
+  uploadInput.value = '';
 }
 
 closeButton.addEventListener('click', closeForm);
 
 document.addEventListener('keydown', (evt) => {
   if (evt.key === 'Escape') {
+    const isErrorVisible = document.querySelector('.error');
+    if (document.activeElement === hashtagInput || document.activeElement === commentInput || isErrorVisible) {
+      return;
+    }
     closeForm();
   }
 });
 
-// ----------- ОТПРАВКА ФОРМЫ -----------
+const submitButton = form.querySelector('.img-upload__submit');
 
-form.addEventListener('submit', (evt) => {
-  const isValid = pristine.validate();
-  if (!isValid) {
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+  submitButton.textContent = 'Публикую...';
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+  submitButton.textContent = 'Опубликовать';
+};
+
+export const setFormSubmit = () => {
+  form.addEventListener('submit', (evt) => {
     evt.preventDefault();
-  }
-});
+
+    const isValid = pristine.validate();
+    if (isValid) {
+      blockSubmitButton();
+      sendData(new FormData(evt.target))
+        .then(() => {
+          showSuccessMessage();
+          closeForm();
+        })
+        .catch(() => {
+          showErrorMessage();
+        })
+        .finally(unblockSubmitButton);
+    }
+  });
+};

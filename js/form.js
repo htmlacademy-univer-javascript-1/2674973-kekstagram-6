@@ -1,9 +1,13 @@
 import { sendData } from './api.js';
 import { showSuccessMessage, showErrorMessage } from './message.js';
 
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 const uploadInput = document.querySelector('.img-upload__input');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
+const preview = document.querySelector('.img-upload__preview img');
+const effectsPreviews = document.querySelectorAll('.effects__preview');
 const body = document.body;
+let currentObjectUrl;
 
 const closeButton = uploadOverlay.querySelector('.img-upload__cancel');
 
@@ -33,6 +37,19 @@ const validateComment = (value) => value.length <= 140;
 pristine.addValidator(commentInput, validateComment, 'Комментарий не может быть длиннее 140 символов');
 
 uploadInput.addEventListener('change', () => {
+  const file = uploadInput.files[0];
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
+  if (matches) {
+    if (currentObjectUrl) {
+      URL.revokeObjectURL(currentObjectUrl);
+    }
+    currentObjectUrl = URL.createObjectURL(file);
+    preview.src = currentObjectUrl;
+    effectsPreviews.forEach((effect) => {
+      effect.style.backgroundImage = `url('${currentObjectUrl}')`;
+    });
+  }
   uploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
 });
@@ -48,6 +65,10 @@ const closeForm = () => {
   resetScale();
   resetEffects();
   uploadInput.value = '';
+  if (currentObjectUrl) {
+    URL.revokeObjectURL(currentObjectUrl);
+    currentObjectUrl = null;
+  }
 };
 
 closeButton.addEventListener('click', closeForm);

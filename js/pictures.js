@@ -4,9 +4,11 @@ const pictureTemplate = document
   .querySelector('.picture');
 const picturesContainer = document.querySelector('.pictures');
 const renderPictures = (data) => {
+  picturesContainer.querySelectorAll('.picture').forEach((element) => element.remove());
   const fragment = document.createDocumentFragment();
-  data.forEach(({ url, description, likes, comments }) => {
+  data.forEach(({ id, url, description, likes, comments }) => {
     const element = pictureTemplate.cloneNode(true);
+    element.dataset.id = id;
     const img = element.querySelector('.picture__img');
     img.src = url;
     img.alt = description;

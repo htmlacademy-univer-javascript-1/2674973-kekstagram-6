@@ -60,11 +60,18 @@ const openBigPicture = (photo) => {
   document.addEventListener('keydown', onEscPress);
 };
 
-const initBigPicture = (thumbnails, photosData) => {
-  thumbnails.forEach((thumbnail, i) => {
-    thumbnail.addEventListener('click', () => {
-      openBigPicture(photosData[i]);
-    });
+const picturesContainer = document.querySelector('.pictures');
+
+const initBigPicture = (photosData) => {
+  picturesContainer.addEventListener('click', (evt) => {
+    const thumbnail = evt.target.closest('.picture');
+    if (!thumbnail) {
+      return;
+    }
+    evt.preventDefault();
+    const pictureId = Number(thumbnail.dataset.id);
+    const pictureData = photosData.find((photo) => photo.id === pictureId);
+    openBigPicture(pictureData);
   });
 };
 export { initBigPicture };
